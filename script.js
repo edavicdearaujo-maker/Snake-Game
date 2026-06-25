@@ -3,40 +3,41 @@ const ctx = canvas.getContext("2d");
 const scoreDisplay = document.getElementById("score");
 
 // --- CONFIGURAÇÕES DO TABULEIRO ---
-const TAMANHO_BLOCO = 20; // Cada quadrado tem 20x20 pixels
-const QUANTIDADE_BLOCOS = canvas.width / TAMANHO_BLOCO; // 20 colunas e 20 linhas
+const TAMANHO_BLOCO = 20; 
+const QUANTIDADE_BLOCOS = canvas.width / TAMANHO_BLOCO; 
 
 // --- ESTADO DO JOGO ---
-let cobra = [{ x: 2, y: 10 }, { x: 1, y: 10 }, { x: 0, y: 10 }];
+let cobra = [
+    { x: 2, y: 10 },
+    { x: 1, y: 10 },
+    { x: 0, y: 10 }
+];
 
 let velX = 1;  // Começa andando para a direita
 let velY = 0;
 let pontuacao = 0;
-let podeMudarDirecao = true; // Trava para evitar o bug de apertar duas teclas no mesmo frame
-let comida = { x: 0, y: 0 }; // Inicializa a variável da comida
+let podeMudarDirecao = true; 
+let comida = { x: 0, y: 0 }; 
 
 // --- FUNÇÃO PARA GERAR COMIDA EM LUGAR SEGURO ---
 function gerarComida() {
     let posicaoInvalida = true;
     let novaX, novaY;
 
-    // O loop continua rodando enquanto a posição sorteada colidir com a cobra
     while (posicaoInvalida) {
         novaX = Math.floor(Math.random() * QUANTIDADE_BLOCOS);
         novaY = Math.floor(Math.random() * QUANTIDADE_BLOCOS);
 
-        posicaoInvalida = false; // Assume que a posição é boa
+        posicaoInvalida = false; 
 
-        // Checa se a nova posição bateu em qualquer pedaço da cobra
         for (let i = 0; i < cobra.length; i++) {
             if (cobra[i].x === novaX && cobra[i].y === novaY) {
-                posicaoInvalida = true; // Posição inválida! Força o 'while' a rodar de novo
+                posicaoInvalida = true; 
                 break;
             }
         }
     }
 
-    // Quando encontra um lugar seguro, define a posição da comida
     comida.x = novaX;
     comida.y = novaY;
 }
@@ -44,7 +45,7 @@ function gerarComida() {
 // Gera a primeira comida do jogo
 gerarComida();
 
-// --- CONTROLE DO TECLADO ---
+// --- CONTROLE DO TECLADO (PC) ---
 window.addEventListener("keydown", (e) => {
     if (!podeMudarDirecao) return;
 
@@ -64,6 +65,40 @@ window.addEventListener("keydown", (e) => {
         velX = 1; velY = 0;
         podeMudarDirecao = false;
     }
+});
+
+// --- CONTROLES TÁTEIS (CELULAR) ---
+const btnUp = document.getElementById("btn-up");
+const btnDown = document.getElementById("btn-down");
+const btnLeft = document.getElementById("btn-left");
+const btnRight = document.getElementById("btn-right");
+
+function mudarDirecaoBotao(novaVelX, novaVelY) {
+    if (!podeMudarDirecao) return;
+
+    // Impede inversão direta de movimentos
+    if (novaVelX !== 0 && velX === -novaVelX) return;
+    if (novaVelY !== 0 && velY === -novaVelY) return;
+
+    velX = novaVelX;
+    velY = novaVelY;
+    podeMudarDirecao = false;
+}
+
+// Suporte para cliques físicos no mouse e toques na tela (touchstart previne delay)
+const botoes = [
+    { elemento: btnUp, dx: 0, dy: -1 },
+    { elemento: btnDown, dx: 0, dy: 1 },
+    { elemento: btnLeft, dx: -1, dy: 0 },
+    { elemento: btnRight, dx: 1, dy: 0 }
+];
+
+botoes.forEach(botao => {
+    botao.elemento.addEventListener("click", () => mudarDirecaoBotao(botao.dx, botao.dy));
+    botao.elemento.addEventListener("touchstart", (e) => {
+        e.preventDefault(); // Evita dar zoom na tela ao clicar rápido
+        mudarDirecaoBotao(botao.dx, botao.dy);
+    });
 });
 
 // --- LÓGICA DE ATUALIZAÇÃO ---
@@ -105,8 +140,6 @@ function update() {
         scoreDisplay.innerText = pontuacao;
 
         cobra.push({ x: cobra[cobra.length - 1].x, y: cobra[cobra.length - 1].y });
-
-        // Usa a nova função segura para reposicionar a comida
         gerarComida();
     }
 }
@@ -120,7 +153,7 @@ function draw() {
     ctx.fillStyle = "#ff4a4a";
     ctx.fillRect(comida.x * TAMANHO_BLOCO, comida.y * TAMANHO_BLOCO, TAMANHO_BLOCO - 2, TAMANHO_BLOCO - 2);
 
-    // Desenha a cobra com degradê verde escuro -> verde claro
+    // Desenha a cobra com degradê dinâmico
     for (let i = 0; i < cobra.length; i++) {
         let claridade = 25 + (i * (45 / cobra.length)); 
         ctx.fillStyle = `hsl(120, 100%, ${claridade}%)`;
@@ -128,15 +161,19 @@ function draw() {
     }
 }
 
-// --- RESET ---
+// --- RESET SEGURO ---
 function reiniciarJogo() {
-    cobra = [{ x: 2, y: 10 }, { x: 1, y: 10 }, { x: 0, y: 10 }];
+    cobra = [
+        { x: 2, y: 10 },
+        { x: 1, y: 10 },
+        { x: 0, y: 10 }
+    ];
     velX = 1;
     velY = 0;
     pontuacao = 0;
     podeMudarDirecao = true;
     scoreDisplay.innerText = pontuacao;
-    gerarComida(); // Sorteia uma comida nova para o recomeço
+    gerarComida(); 
 }
 
 // --- GAME LOOP ---
