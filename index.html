@@ -3,65 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game</title>
+    <title>Jogo da Cobrinha</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* --- ESTILIZAÇÃO DO JOGO --- */
         body {
             background-color: #0b0c10;
             color: #66fcf1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            margin: 0;
+            padding: 10px;
             min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .game-container {
-            text-align: center;
+            box-sizing: border-box;
         }
 
         h1 {
-            font-size: 2rem;
+            margin: 5px 0;
+            font-size: 24px;
+        }
+
+        .placar {
+            font-size: 20px;
             margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px #66fcf1;
-        }
-
-        .score-board {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #c5a5c5;
-        }
-
-        .score-board span {
-            color: #ffffff;
             font-weight: bold;
         }
 
         canvas {
-            background-color: #1f2833;
             border: 4px solid #45f3ff;
-            box-shadow: 0 0 20px rgba(70, 243, 255, 0.3);
-            border-radius: 4px;
-            display: block;
+            background-color: #1f2833;
+            box-shadow: 0 0 20px #45f3ff;
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* --- CONTROLES PARA CELULAR (D-PAD) --- */
+        .controles-celular {
+            display: none; /* Esconde no Computador por padrão */
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .linha-horizontal {
+            display: flex;
+            justify-content: space-between;
+            width: 140px;
+            margin: 5px 0;
+        }
+
+        .btn-controle {
+            width: 60px;
+            height: 60px;
+            background-color: #1f2833;
+            border: 2px solid #66fcf1;
+            color: #66fcf1;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background 0.1s;
+        }
+
+        /* Efeito visual ao tocar no botão */
+        .btn-controle:active {
+            background-color: #45f3ff;
+            color: #0b0c10;
+        }
+
+        /* REGRAS APENAS PARA TELAS PEQUENAS (CELULAR) */
+        @media (max-width: 768px) {
+            .controles-celular {
+                display: flex; /* Mostra o controle apenas no celular */
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        <h1>Snake Game</h1>
-        <div class="score-board">Pontuação: <span id="score">0</span></div>
-        
-        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+    <h1>Snake Game</h1>
+    <div class="placar">Pontos: <span id="score">0</span></div>
+
+    <canvas id="snakeCanvas" width="400" height="400"></canvas>
+
+    <div class="controles-celular">
+        <button class="btn-controle" id="btn-up">▲</button>
+        <div class="linha-horizontal">
+            <button class="btn-controle" id="btn-left">◀</button>
+            <button class="btn-controle" id="btn-right">▶</button>
+        </div>
+        <button class="btn-controle" id="btn-down">▼</button>
     </div>
 
     <script src="script.js"></script>
